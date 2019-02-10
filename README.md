@@ -1,5 +1,5 @@
 # Continuous-Control
-My submission for Project 2 from [Udacity's Deep Reinforcement Learning Nanodegree Program](https://www.udacity.com/course/deep-reinforcement-learning-nanodegree--nd893).  
+My submission for Project 3 from [Udacity's Deep Reinforcement Learning Nanodegree Program](https://www.udacity.com/course/deep-reinforcement-learning-nanodegree--nd893).  
 
 ## Project Details
 
