@@ -1,7 +1,7 @@
 # Continuous-Control
 My submission for Project 3 from [Udacity's Deep Reinforcement Learning Nanodegree Program](https://www.udacity.com/course/deep-reinforcement-learning-nanodegree--nd893).  
 
-I've posted a [demo video](https://youtu.be/_FgT5huJuw8) of a smart agent in action, which shows how well the training solves this task.
+I've posted a [demo video](https://youtu.be/IRBkbUUZs1k) of a smart agent in action, which shows how well the training solves this task, and a [plot of the scores](https://pasteboard.co/I18Yv5U.png) during training.
 
 ## Project Details
 
