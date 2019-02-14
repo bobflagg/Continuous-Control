@@ -1,6 +1,8 @@
 # Continuous-Control
 My submission for Project 3 from [Udacity's Deep Reinforcement Learning Nanodegree Program](https://www.udacity.com/course/deep-reinforcement-learning-nanodegree--nd893).  
 
+I've posted a [demo video](https://youtu.be/_FgT5huJuw8) of a smart agent in action, which shows how well the training solves this task.
+
 ## Project Details
 
 In the [reacher environment](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Learning-Environment-Examples.md#reacher) for the Continuous Control Project a double-jointed arm can move to target locations. 
@@ -19,14 +21,13 @@ If you would like to run this code locally follow the instructions below.
 
 1. Set up your Python environment as described the dependencies section of the [readme](https://github.com/udacity/deep-reinforcement-learning) from the [Deep Reinforcement Learning Nanodegree program](https://www.udacity.com/course/deep-reinforcement-learning-nanodegree--nd893). 
 2. Clone this repository.
-3. Create a directory called "data" at the root of the cloned repository.
-4. Select the environment that matches your operating system from the list below:
-    - [Linux](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P2/Reacher/one_agent/Reacher_Linux.zip)
-    - [Mac OSX](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P2/Reacher/one_agent/Reacher.app.zip)
-    - [Windows (32-bit)](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P2/Reacher/one_agent/Reacher_Windows_x86.zip)
-    - [Windows (64-bit)](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P2/Reacher/one_agent/Reacher_Windows_x86_64.zip)
-5. Place the file in the data folder you created above.
-6. Unzip (or decompress) the file.
+3. Select the environment that matches your operating system from the list below:
+    - [Linux](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P2/Reacher/Reacher_Linux.zip)
+    - [Mac OSX](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P2/Reacher/Reacher.app.zip)
+    - [Windows (32-bit)](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P2/Reacher/Reacher_Windows_x86.zip)
+    - [Windows (64-bit)](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P2/Reacher/Reacher_Windows_x86_64.zip)
+4. Place the file in the root folder of the cloned repo.
+5. Unzip (or decompress) the file.
 
 ## Instructions
 
