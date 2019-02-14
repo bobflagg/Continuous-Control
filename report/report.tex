@@ -28,7 +28,7 @@
 %
 % The "title" command has an optional parameter, allowing the author to define a "short title" to be used in page headers.
 \title{    
-	Project 2: Continuous Control\\
+	Project 3: Continuous Control\\
 	{\large Udacity Deep Reinforcement Learning Nanodegree Program}
 }
 
@@ -58,7 +58,7 @@
 \begin{teaserfigure}
 	\centering
   \includegraphics[width=0.4\textwidth]{arm}
-  \caption{Designing a robotic arm. Source: SOLIDWORKS 2016~\protect\cite{10.1007/978-3-319-52941-7_18}}
+  \caption{Designing a robotic arm. Source: SOLIDWORKS 2016}
   \label{fig:teaser}
 \end{teaserfigure}
 
@@ -98,9 +98,79 @@ The
 \href{https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Learning-Environment-Examples.md#reacher}{\underline{Reacher}}
 is a {\em sequential decision making problem}, in which an agent interacts with an environment over discrete time
 steps and tries to find a {\em policy} to maximize the expected {\em discounted return}:
-$$G_t = \sum_{\tau=t}^{\infty}\gamma^{\tau-t}R_\tau,$$
+$$G_t = \sum_{k=0}^{\infty}\gamma^kR_{t+k+1},$$
 where $\gamma\in[0,1]$  is a discount factor that trades-off the importance of immediate and future rewards.
 See~\cite{DBLP:books/lib/SuttonB98} for a general discussion of this sort of problem. 
+
+In this project I will use policy-based methods, which try to directly  find an {\em optimal policy}, $\pi^*$,  that an agent can use to decide what actions to take.  The
+particular algorithm,
+ {\em Deep Deterministic Policy Gradient}~\cite{Silver:2014:DPG:3044805.3044850} (DDPG),
+is motivated by an important connection between the action selected by an optimal policy and the {\em optimal action-value function} 
+	$$Q^*(s, a) =  \max_{\pi}Q^{\pi}(s,a).$$
+Namely, if you know the optimal action-value function, then in any given state, $s$, an optimal action can be found by solving
+	 $$\pi^*(s) = \arg\max_a Q^*(s,a).$$
+ DDPG concurrently learns an approximator to $Q^*(s,a)$ and an approximator to $\pi^*(s)$, and it does so in a way which is specifically adapted for environments with continuous action spaces. 
+
+\subsection{Learning $Q^*(s,a)$}
+
+The starting point for approximating $Q^*(s, a)$  is the \textbf{Bellman Equation}:
+$$Q^{*}(s,a) = \mathbb{E}\big[R_{t+1}+\gamma\cdot \max_{a'}Q^{*}(S_{t+1},a')| S_t = s, A_t=a\big].$$
+Suppose we are approximating $Q^*(s, a)$ with a neural network, $Q_\phi(s,a)$, and we have collected a set $\mathcal{D}$ of
+transitions $(s, a, r, s', d)$, then the \textbf{mean-squared Bellman error} (MSBE)
+		$$L(\phi, \mathcal{D}) = \mathbb{E}_{\mathcal{D}}\big[\big(Q_\phi(s,a)-(r+\gamma\cdot(1-d)\max_{a'}Q_\phi(s',a'))\big)^2\big]$$
+tells us roughly how closely $Q_{\phi}$ comes to satisfying the Bellman equation and so can serve as the loss function in tuning $\phi$.
+
+\subsection{Learning $\pi^*(s)$}
+
+Learning the optimal policy is pretty simple: we want to learn a deterministic policy $\pi^*(s)$ which gives the action that maximizes $Q^*(s, a)$.
+For this DDPG uses a neural network, $\pi_\theta(s)$, and loss function
+$$L(\theta, \mathcal{D}) = -\mathbb{E}_{\mathcal{D}}\big[Q_\phi(s,\pi_\theta(s))\big].$$
+ 
+
+\section{DDPG for Continuous Control}
+
+I've implemented DDPG for the \href{https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Learning-Environment-Examples.md#reacher}{\underline{Reacher}}
+in the notebook 
+\href{https://nbviewer.jupyter.org/github/bobflagg/Continuous-Control/blob/master/01-Continuous-Control-with-DDPG.ipynb}{\underline{Continuous-Control-with-DDPG}}.
+The key components and hyper-parameter settings are outlined below.
+\begin{itemize}
+	\item \textbf{Actor Network}: One fully connected linear hidden layer with 256 units. The input size is equal to the environment state-size and the output size is equal to the environment action-size. It uses ReLu activation functions and batch normalization after the hidden layer.
+	\item \textbf{Critic Network}: Three fully connected linear hidden layers. The first hidden layer has 256 units and has input size equal to the environment state-size. The second hidden layer has 256 units and input size equal to 256 + the environment action-size. The third hidden layer has 128 units. ReLu activation functions are used throughout  and batch normalization is applied after the first layer. The output of this network is one-dimensional.
+	\item \textbf{Hyperparameter Settings}: 
+	I trained for 150 episodes with a batch size of 64, discount factor of $\gamma = 0.99$, soft update weight of $\tau = 0.001$, actor learning rate of $0.0001$, 
+	 and critic learning rate of $0.001$.  To get DDPG to learn in a multi-agent environment I had to separate updating network parameters from adding samples to the replay buffer so that I could interleave these two steps in an appropriate proportion. I followed the suggestions from the "benchmark implimentation" discussion of project description and updated the networks 10 times after every 20 timesteps. 
+\end{itemize}
+
+With the above settings I achieved an average score of 33.37 for the final 100 episodes.  The complete set of scores is plotted in Figure 2.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=3.0in]{ddpg-scores}
+	\label{fig:ddpg-scores}
+	\caption{Training Scores}
+\end{figure}
+
+
+\section{Improving Performance}
+
+Deep Deterministic Policy Gradient did well on this task.  To improve performance futher, I would do grid search on the hyper-parameters and network architectures for this approach.  Another interesting direction would be to try the {\em Soft Actor-Critic Algorthm}~\cite{DBLP:journals/corr/abs-1812-05905}.  The key idea 
+of this algorithm is to add an entropy constraint to the characterization of an optimal policy:
+	$$\pi^* =  \operatorname{arg\,max}_{\pi}\mathbb{E}_{\tau\sim\pi}\big[\sum_{t=0}^{\infty}\gamma^t\big(R_t+\alpha \mathcal{H} [\pi(\cdot|S_t)]\big)\big],$$
+which can result in more stable learning.
+
+\bibliographystyle{ACM-Reference-Format}
+%%\nocite{*}
+\bibliography{report}
+
+
+\end{document}
+
+The specific policy-based method I'll used is called {\em Deep Deterministic Policy Gradient}~\cite{Silver:2014:DPG:3044805.3044850} (DDPG) which 
+concurrently learns a policy and a Q-function. Recall that the {\em Q-function} for a policy $\pi$ is defined by
+$$Q^{\pi}(s,a) = \mathbb{E}_\pi\big[G_t| S_t = s, A_t=a\big].$$
+DDPG uses  off-policy data and the \textbf{Bellman Equation}:
+$$Q^{\pi}(s,a) = \mathbb{E}_\pi\big[R_{t+1}+\gamma\cdot Q^{\pi}(S_{t+1},A_{t+1})| S_t = s, A_t=a\big].$$
+to learn the Q-function, and uses the Q-function to learn the policy.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Deep Q-Learning for Navigation                                                                                                %%
@@ -115,54 +185,16 @@ $$L(\phi_i, {\mathcal D}) = \underset{(s,a,r,s',d) \sim {\mathcal D}}{\mathbb{E}
 \Bigg( Q_{\phi_i}(s,a) - \left(r + \gamma (1 - d) V_{\psi_{\text{targ}}}(s') \right) \Bigg)^2
 \right].$$
 
-\begin{enumerate}
-	\item\textbf{Near Duplicate N-Grams}: We'll maintain a database of about 80,000 pre-populated ad text transcript n-gram hashes (updated on a regular basis) and a dynamic collection of hashes collected from repeated content determined to be ad text and use this database to extract the following features of a segment:
-		\begin{enumerate}
-			\item duplicate n-grams across programs,
-			\item duplicate n-grams across station boundaries,
-			\item duplicate n-grams across affiliate boundaries, and
-			\item duplicate n-grams across broadcast markets.
-		\end{enumerate}
-	\item\textbf{Transcript Line Timing}: Line timing is likely to be predictive of advertisements and we'll consider the following features derived from it:
-		\begin{enumerate}
-			\item 3-4 second preceding pause,
-			\item number of seconds since the top of the hour,
-			\item number of seconds since the end of the last ad pod,
-			\item number of seconds since the last transition,
-			\item station or program specific timing of ads,
-			\item time of day, and
-			\item day of the week
-		\end{enumerate}
-\end{enumerate}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Other Languages                                                                                                                      %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Other Languages}
-
-The APDE design outlined above can be built to support any language provided the following resources are available in the target language:
-
-\begin{enumerate}
-	\item a large (> 500K docs) corpus of program transcripts for unsupervised training of a topic model,
-	\item a reasonably large (about 5K docs) collection of program transcripts with advertisement segments tagged for supervised training of a text classifier, and
-	\item a resource for maintaining a database of pre-populated ad text transcript n-gram hashes.
-\end{enumerate}
-
-
-\bibliographystyle{ACM-Reference-Format}
-\nocite{*}
-\bibliography{report}
-
-
-\end{document}
-
-
 {\em Soft Actor-Critic Algorthm}~\cite{DBLP:journals/corr/abs-1812-05905}.
 Source code in Python, using PyTorch, is available on 
 \href{http://github.com}{\underline{github}} 
 in the repo 
 \href{https://github.com/bobflagg/Actor-Critic-for-Continuous-Control}{\underline{Actor-Critic-for-Continuous-Control}}.
+
+For a policy $\pi$, the {\em state-value function}, $V^\pi$, is defined by
+$$V^{\pi}(s) = \mathbb{E}_\pi\big[G_t| S_t = s\big].$$
+and we would like to find $\pi$ so that 
+$$V^{\pi}(s) = V^{*}(s) = \max_{\pi'}V^{\pi'}(s).$$
 
 
 
