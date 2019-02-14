@@ -138,10 +138,10 @@ The key components and hyper-parameter settings are outlined below.
 	\item \textbf{Critic Network}: Three fully connected linear hidden layers. The first hidden layer has 256 units and has input size equal to the environment state-size. The second hidden layer has 256 units and input size equal to 256 + the environment action-size. The third hidden layer has 128 units. ReLu activation functions are used throughout  and batch normalization is applied after the first layer. The output of this network is one-dimensional.
 	\item \textbf{Hyperparameter Settings}: 
 	I trained for 150 episodes with a batch size of 64, discount factor of $\gamma = 0.99$, soft update weight of $\tau = 0.001$, actor learning rate of $0.0001$, 
-	 and critic learning rate of $0.001$.  To get DDPG to learn in a multi-agent environment I had to separate updating network parameters from adding samples to the replay buffer so that I could interleave these two steps in an appropriate proportion. I followed the suggestions from the "benchmark implimentation" discussion of project description and updated the networks 10 times after every 20 timesteps. 
+	 and critic learning rate of $0.001$.  To get DDPG to learn in a multi-agent environment I had to separate updating network parameters from adding samples to the replay buffer so that I could interleave these two steps in an appropriate proportion. After a bit of experimentation, I modified slightly the suggestions from the "benchmark implimentation" discussion in the project description and updated the networks 15 times after every 20 timesteps. 
 \end{itemize}
 
-With the above settings I achieved an average score of 33.37 for the final 100 episodes.  The complete set of scores is plotted in Figure 2.
+With the above settings I achieved an average score of 34.26 for the final 100 episodes. The complete set of scores is plotted in Figure 2.
 
 \begin{figure}[h]
 	\centering
